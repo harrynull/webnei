@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import './App.css'
-import {Flex, Grid, ScrollArea, TextInput} from "@mantine/core";
+import {Center, Flex, Grid, ScrollArea, Space, Stack, TextInput, Text} from "@mantine/core";
 import {gql} from "./__generated__";
 import {useQuery} from "@apollo/client";
 import ItemStackDisplay, {itemToItemStackFull} from "./components/ItemStack";
@@ -97,41 +97,52 @@ function App() {
     }
 
     return (
-        <Grid>
-            <Grid.Col span={7}>
-                <RecipeDisplay
-                    recipe={recipeData?.items?.at(0)?.recipes?.at(0)}
-                    onClick={(leftClick, item)=>selectRecipe(leftClick, item)}
-                />
-            </Grid.Col>
-            <Grid.Col span={5}>
-                <div style={{backgroundColor: "#efefef", padding: '10px'}}>
-                    <ScrollArea style={{ height: '80vh' }}>
-                        <Flex
-                            style={{width: '100%', marginBottom: '20px'}}
-                            gap="sm"
-                            justify="center"
-                            align="center"
-                            direction="row"
-                            wrap="wrap"
-                        >{data && data.items.map((item: Item) => (
-                            <ItemStackDisplay key={item.id} item={itemToItemStackFull(item)} onClick={(leftClick)=>selectRecipe(leftClick, item)}/>
-                        ))}
-                        </Flex>
-                    </ScrollArea>
-                    <TextInput
-                        placeholder="Search for items..."
-                        radius="md"
-                        size="md"
-                        style={{width: '100%'}}
-                        onChange={(e) => {
-                            setQuery(e.target.value)
-                        }}
-                        withAsterisk
+        <Stack>
+            <Grid>
+                <Grid.Col span={7}>
+                    <RecipeDisplay
+                        recipe={recipeData?.items?.at(0)?.recipes?.at(0)}
+                        onClick={(leftClick, item) => selectRecipe(leftClick, item)}
                     />
+                </Grid.Col>
+                <Grid.Col span={5}>
+                    <div style={{backgroundColor: "#efefef", padding: '10px'}}>
+                        <ScrollArea style={{height: '80vh'}}>
+                            <Flex
+                                style={{width: '100%', marginBottom: '20px'}}
+                                gap="sm"
+                                justify="center"
+                                align="center"
+                                direction="row"
+                                wrap="wrap"
+                            >{data && data.items.map((item: Item) => (
+                                <ItemStackDisplay key={item.id} item={itemToItemStackFull(item)}
+                                                  onClick={(leftClick) => selectRecipe(leftClick, item)}/>
+                            ))}
+                            </Flex>
+                        </ScrollArea>
+                        <TextInput
+                            placeholder="Search for items..."
+                            radius="md"
+                            size="md"
+                            style={{width: '100%'}}
+                            onChange={(e) => {
+                                setQuery(e.target.value)
+                            }}
+                            withAsterisk
+                        />
+                    </div>
+                </Grid.Col>
+            </Grid>
+            <Center style={{flexDirection: 'column'}}>
+                <div>
+                    Data exported from&nbsp;<a href="">GTNH 2.2.8</a>&nbsp;with&nbsp;<a href="https://github.com/D-Cysteine/nesql-exporter">nesql-exporter</a> | <a href="https://github.com/harrynull/NEIGraphQL">Backend source code</a> | <a href="#">GraphQL endpoint</a> | <a href="https://github.com/harrynull/WebNEI">frontend source code</a>
                 </div>
-            </Grid.Col>
-        </Grid>
+                <div>
+                    <a href="https://harrynull.tech">made by harrynull</a>
+                </div>
+            </Center>
+        </Stack>
     )
 }
 

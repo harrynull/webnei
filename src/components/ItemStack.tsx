@@ -34,7 +34,7 @@ const fixTooltip = (tooltip: string) => {
     try {
         return decodeURIComponent(unraw(tooltip)).replaceAll('\n', '<br/>')
     } catch (e) {
-        return tooltip.replaceAll('\\u00a', '<br/>')
+        return tooltip.replaceAll('\\u000a', '<br/>')
     }
 }
 
