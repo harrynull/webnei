@@ -83,7 +83,7 @@ export type QueryItemsArgs = {
 
 export type Recipe = {
   __typename?: 'Recipe';
-  gregTechRecipe?: Maybe<GregTechRecipe>;
+  gregTechRecipe: GregTechRecipe;
   id: Scalars['String'];
   inputs: Array<InputItem>;
   outputs: Array<OutputItem>;
