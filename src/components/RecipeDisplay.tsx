@@ -1,12 +1,13 @@
-import {GregTechRecipe, InputItem, OutputItem, Recipe} from "../__generated__/graphql";
-import {Box, Divider, Grid, SimpleGrid, Space, Stack, Text} from "@mantine/core";
-import ItemStackDisplay, {itemToItemStackFull, outputItemToItemStackFull} from "./ItemStack";
+import {GregTechRecipe, InputItem, Item, OutputItem, Recipe} from "../__generated__/graphql";
+import {Box, Center, Divider, Flex, Grid, SimpleGrid, Space, Stack, Text} from "@mantine/core";
+import ItemStackDisplay, {EmptyItem, itemToItemStackFull, outputItemToItemStackFull} from "./ItemStack";
 import MultipleItemStackDisplay from "./MultipleItemStack";
 import {groupBy} from "lodash";
+import {IMAGE_BASE_URL} from "../config";
 
 interface RecipeDisplayProps {
     recipe: Recipe | undefined,
-    onClick: (leftClick: boolean) => void,
+    onClick: (leftClick: boolean, item: Item) => void,
 }
 
 const gregTechInfo = (gregtech: GregTechRecipe) => {
@@ -35,19 +36,20 @@ const buildGrid = (
     items: OutputItem[],
     width: number,
     height: number,
-    onClick: (leftClick: boolean) => void
+    onClick: (leftClick: boolean, item: Item) => void
 ) => {
     // group items by items.key
     const groupedItems = groupBy(items, (item) => item.key);
-    const maxKey = Math.max(...items.map((item) => item.key));
-
     return (
-        <SimpleGrid cols={width} style={{width: 'fit-content'}}>
-            {Array.from(Array(width * height).keys()).map((key) =>
-                (groupedItems[key]? (<MultipleItemStackDisplay
-                    items={groupedItems[key].map(outputItemToItemStackFull)} key={key}
-                    onClick={onClick}/>) : <Space style={{width: '32px', height: '32px'}}/>) )}
-        </SimpleGrid>
+        <Flex align="center" justify="center" style={{height:"100%"}}>
+            <SimpleGrid cols={width} style={{width: 'fit-content'}}>
+                {Array.from(Array(width * height).keys()).map((key) =>
+                    (groupedItems[key] ? (<MultipleItemStackDisplay
+                        items={groupedItems[key].map(outputItemToItemStackFull)} key={key}
+                        onClick={onClick}/>) : <EmptyItem/>)
+                )}
+            </SimpleGrid>
+        </Flex>
     )
 }
 
@@ -58,19 +60,24 @@ const RecipeDisplay = ({recipe, onClick}: RecipeDisplayProps) => {
         <Stack>
             <Grid>
                 <Grid.Col span={6} style={{width: "fit-content"}}>
-                    {buildGrid(recipe.inputs.map(toOutputItem), recipe.recipeType.itemInputDimensionWidth, recipe.recipeType.itemOutputDimensionHeight, onClick)}
+                    {buildGrid(recipe.inputs.map(toOutputItem), recipe.recipeType.itemInputDimensionWidth, recipe.recipeType.itemInputDimensionHeight, onClick)}
                 </Grid.Col>
                 <Grid.Col span={1}>
-                    ➡
+                    <Flex align="center" style={{height: "100%"}}><Text>➡</Text></Flex>
                 </Grid.Col>
                 <Grid.Col span={5}>
                     {buildGrid(recipe.outputs, recipe.recipeType.itemOutputDimensionWidth, recipe.recipeType.itemOutputDimensionHeight, onClick)}
                 </Grid.Col>
             </Grid>
             <Divider my="sm" />
-            <ItemStackDisplay item={itemToItemStackFull(recipe.recipeType.icon)} onClick={()=>{}}/>
-            {recipe.gregTechRecipe && gregTechInfo(recipe.gregTechRecipe)}
-            {recipe.recipeType.shapeless && <Text>Shapeless</Text>}
+            <Center>
+                <Stack style={{alignItems: 'center'}}>
+                    <ItemStackDisplay item={itemToItemStackFull(recipe.recipeType.icon)} onClick={(leftClick)=>onClick(leftClick, recipe.recipeType.icon)}/>
+                    <Text>Crafted with: {recipe.recipeType.icon.localizedName}</Text>
+                    {recipe.gregTechRecipe && gregTechInfo(recipe.gregTechRecipe)}
+                    {recipe.recipeType.shapeless && <Text>Shapeless</Text>}
+                </Stack>
+            </Center>
         </Stack>)
 }
 

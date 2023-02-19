@@ -31,7 +31,28 @@ interface ItemStackDisplayProps {
 }
 
 const fixTooltip = (tooltip: string) => {
-    return decodeURIComponent(unraw(tooltip)).replaceAll('\n', '<br/>')
+    try {
+        return decodeURIComponent(unraw(tooltip)).replaceAll('\n', '<br/>')
+    } catch (e) {
+        return tooltip.replaceAll('\\u00a', '<br/>')
+    }
+}
+
+export const EmptyItem = () => {
+    return <Box
+        sx={(theme) => ({
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+            textAlign: 'center',
+            width: '40px', height: '40px',
+            padding: '2px',
+            borderRadius: theme.radius.md,
+            cursor: 'pointer',
+            '&:hover': {
+                backgroundColor:
+                    theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+            },
+        })}
+    ></Box>
 }
 
 const ItemStackDisplay = ({item, onClick}: ItemStackDisplayProps) => {
