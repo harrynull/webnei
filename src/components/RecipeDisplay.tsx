@@ -12,10 +12,9 @@ interface RecipeDisplayProps {
 const gregTechInfo = (gregtech: GregTechRecipe) => {
     return (
         <div>
-            <Text>Tier: {gregtech.voltageTier}</Text>
-            <Text>Voltage: {gregtech.voltage}</Text>
+            <Text>Voltage: {gregtech.voltage} EU/t ({gregtech.voltageTier})</Text>
             <Text>Amperage: {gregtech.amperage}</Text>
-            <Text>Duration: {gregtech.duration}</Text>
+            <Text>Duration: {gregtech.duration/20} secs ({gregtech.duration} ticks)</Text>
             {gregtech.requiresCleanroom && <Text>Requires Cleanroom</Text>}
             {gregtech.requiresLowGravity && <Text>Requires Low Gravity</Text>}
             {gregtech.additionalInfo && <Text>{gregtech.additionalInfo}</Text>}
