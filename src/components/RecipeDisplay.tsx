@@ -1,9 +1,8 @@
 import {GregTechRecipe, InputItem, Item, OutputItem, Recipe} from "../__generated__/graphql";
-import {Box, Center, Divider, Flex, Grid, SimpleGrid, Space, Stack, Text} from "@mantine/core";
-import ItemStackDisplay, {EmptyItem, itemToItemStackFull, outputItemToItemStackFull} from "./ItemStack";
+import {Center, Flex, Grid, SimpleGrid, Stack, Text} from "@mantine/core";
+import {EmptyItem, outputItemToItemStackFull} from "./ItemStack";
 import MultipleItemStackDisplay from "./MultipleItemStack";
 import {groupBy} from "lodash";
-import {IMAGE_BASE_URL} from "../config";
 
 interface RecipeDisplayProps {
     recipe: Recipe | undefined,
@@ -46,7 +45,7 @@ const buildGrid = (
                 {Array.from(Array(width * height).keys()).map((key) =>
                     (groupedItems[key] ? (<MultipleItemStackDisplay
                         items={groupedItems[key].map(outputItemToItemStackFull)} key={key}
-                        onClick={onClick}/>) : <EmptyItem/>)
+                        onClick={onClick}/>) : <EmptyItem key={key}/>)
                 )}
             </SimpleGrid>
         </Flex>
@@ -69,13 +68,9 @@ const RecipeDisplay = ({recipe, onClick}: RecipeDisplayProps) => {
                     {buildGrid(recipe.outputs, recipe.recipeType.itemOutputDimensionWidth, recipe.recipeType.itemOutputDimensionHeight, onClick)}
                 </Grid.Col>
             </Grid>
-            <Divider my="sm" />
             <Center>
                 <Stack style={{alignItems: 'center'}}>
-                    <ItemStackDisplay item={itemToItemStackFull(recipe.recipeType.icon)} onClick={(leftClick)=>onClick(leftClick, recipe.recipeType.icon)}/>
-                    <Text>Crafted with: {recipe.recipeType.icon.localizedName}</Text>
                     {recipe.gregTechRecipe && gregTechInfo(recipe.gregTechRecipe)}
-                    {recipe.recipeType.shapeless && <Text>Shapeless</Text>}
                 </Stack>
             </Center>
         </Stack>)

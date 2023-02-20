@@ -9,6 +9,20 @@ export type ItemStackFull = {
     stackSize: number
 }
 
+function isItemStackFull(item: ItemStackFull | Item | InputItem | OutputItem): item is ItemStackFull {
+    return (item as ItemStackFull).item !== undefined &&
+        (item as ItemStackFull).probability !== undefined &&
+        (item as ItemStackFull).stackSize !== undefined;
+}
+
+function isInputItem(item: ItemStackFull | Item | InputItem | OutputItem): item is InputItem {
+    return (item as InputItem).__typename === "InputItem";
+}
+
+function isOutputItem(item: ItemStackFull | Item | InputItem | OutputItem): item is OutputItem {
+    return (item as OutputItem).__typename === "OutputItem";
+}
+
 export function itemToItemStackFull(item: Item) {
     return {item: item, probability: 1, stackSize: 1}
 }
@@ -25,9 +39,22 @@ export function outputItemToItemStackFull(item: OutputItem) {
     return {item: item.itemStack.item, probability: item.probability, stackSize: item.itemStack.stackSize}
 }
 
+const normalizeItemStack = (item: ItemStackFull | Item | InputItem | OutputItem): ItemStackFull => {
+    if (isItemStackFull(item)) {
+        return item
+    }
+    if (isInputItem(item)) {
+        return inputItemToItemStackFull(item)
+    }
+    if (isOutputItem(item)) {
+        return outputItemToItemStackFull(item)
+    }
+    return itemToItemStackFull(item)
+}
+
 interface ItemStackDisplayProps {
-    item: ItemStackFull,
-    onClick: ((leftClick: boolean) => void) | undefined
+    item: ItemStackFull | Item | InputItem | OutputItem
+    onClick: ((leftClick: boolean, item: Item) => void) | undefined
 }
 
 const fixTooltip = (tooltip: string) => {
@@ -55,7 +82,8 @@ export const EmptyItem = () => {
     ></Box>
 }
 
-const ItemStackDisplay = ({item, onClick}: ItemStackDisplayProps) => {
+const ItemStackDisplay = ({item: inputItem, onClick}: ItemStackDisplayProps) => {
+    const item = normalizeItemStack(inputItem)
     return (
         <HoverCard width={280} shadow="md">
             <HoverCard.Target>
@@ -73,13 +101,14 @@ const ItemStackDisplay = ({item, onClick}: ItemStackDisplayProps) => {
                                 theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
                         },
                     })}
-                    onClick={() => onClick && onClick(true)}
-                    onContextMenu={() => {onClick && onClick(false); return true} }
+                    onClick={() => onClick && onClick(true, item.item)}
+                    onContextMenu={(e) => {onClick && onClick(false, item.item); e.preventDefault(); e.stopPropagation(); return false} }
                 >
                     <img
                         src={IMAGE_BASE_URL + item.item.imageFilePath}
                         style={{width: '40px', height: '40px'}}
                     />
+                    {item.stackSize > 1 && (<Text size="sm" style={{position: 'absolute', bottom: '0', right: '0'}}>{item.stackSize}</Text>)}
                 </Box>
             </HoverCard.Target>
             <HoverCard.Dropdown style={{textAlign: 'left'}}>

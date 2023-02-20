@@ -16,7 +16,7 @@ const MultipleItemStackDisplay = ({items, onClick}: MultipleItemStackDisplayProp
     useEffect(() => {interval.start(); return interval.stop}, []);
     const item = items[currentIndex];
     return (
-        <ItemStackDisplay item={item} onClick={(leftClick)=> onClick ? onClick(leftClick, item.item) : null}/>
+        <ItemStackDisplay item={item} onClick={onClick}/>
     )
 }
 export default MultipleItemStackDisplay;

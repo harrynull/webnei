@@ -1,12 +1,12 @@
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useState} from 'react'
 import './App.css'
-import {Center, Flex, Grid, ScrollArea, Space, Stack, TextInput, Text} from "@mantine/core";
+import {Center, Flex, Grid, ScrollArea, Stack, TextInput} from "@mantine/core";
 import {gql} from "./__generated__";
 import {useQuery} from "@apollo/client";
-import ItemStackDisplay, {itemToItemStackFull} from "./components/ItemStack";
+import ItemStackDisplay from "./components/ItemStack";
 import {Item} from "./__generated__/graphql";
-import RecipeDisplay from "./components/RecipeDisplay";
 import {useDebouncedState, useElementSize} from "@mantine/hooks";
+import {ItemRecipes} from "./components/ItemRecipes";
 
 const BASIC_ITEM_INFO = gql(/* GraphQL */`
     fragment BasicItemInfo on Item {
@@ -25,57 +25,73 @@ const GET_ITEMS = gql(/* GraphQL */`
     }
 `);
 
+const RECIPE_INFO = gql(/* GraphQL */`
+    fragment RecipeInfo on Recipe {
+        id,
+        gregTechRecipe {
+            id
+            additionalInfo
+            amperage
+            duration
+            requiresCleanroom
+            requiresLowGravity
+            voltage
+            voltageTier
+        }
+        inputs {
+            key
+            itemStack {
+                item {
+                    ...BasicItemInfo
+                }
+                stackSize
+            }
+        }
+        outputs {
+            key
+            probability
+            itemStack {
+                item {
+                    ...BasicItemInfo
+                }
+                stackSize
+            }
+        }
+        recipeType {
+            category
+            fluidInputDimensionHeight
+            fluidInputDimensionWidth
+            fluidOutputDimensionHeight
+            fluidOutputDimensionWidth
+            icon {
+                ...BasicItemInfo
+            }
+            id
+            itemInputDimensionHeight
+            itemInputDimensionWidth
+            itemOutputDimensionHeight
+            itemOutputDimensionWidth
+            shapeless
+            type
+        }
+    }
+`);
+
 const GET_RECIPE_BY_ITEM_ID = gql(/* GraphQL */`
     query GetRecipeByItemId($itemId: String!) {
         items(itemId: $itemId, limit: 1) {
             recipes {
-                id,
-                gregTechRecipe {
-                    id
-                    additionalInfo
-                    amperage
-                    duration
-                    requiresCleanroom
-                    requiresLowGravity
-                    voltage
-                    voltageTier
-                }
-                inputs {
-                    key
-                    itemStack {
-                        item {
-                            ...BasicItemInfo
-                        }
-                        stackSize
-                    }
-                }
-                outputs {
-                    key
-                    probability
-                    itemStack {
-                        item {
-                            ...BasicItemInfo
-                        }
-                        stackSize
-                    }
-                }
-                recipeType {
-                    category
-                    fluidInputDimensionHeight
-                    fluidInputDimensionWidth
-                    fluidOutputDimensionHeight
-                    fluidOutputDimensionWidth
-                    icon {
-                        ...BasicItemInfo
-                    }
-                    id
-                    itemInputDimensionHeight
-                    itemInputDimensionWidth
-                    itemOutputDimensionHeight
-                    itemOutputDimensionWidth
-                    shapeless
-                    type
-                }
+                ...RecipeInfo
+            }
+        }
+    }
+`);
+
+const GET_USAGE_BY_ITEM_ID = gql(/* GraphQL */`
+    query GetUsageByItemId($itemId: String!) {
+        items(itemId: $itemId, limit: 1) {
+            usages {
+                ...RecipeInfo
             }
         }
     }
@@ -88,22 +104,21 @@ function App() {
         {variables: {query: `%${query}%`, limit: 500}}
     );
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-    const {data: recipeData} = useQuery(
-        GET_RECIPE_BY_ITEM_ID, {variables: {itemId: selectedItem?.id ?? ''}}
-    );
+    const [lookupMode, setLookupMode] = useState<"recipes" | "usage">("recipes");
+    const {data: recipeData, loading} = useQuery(
+        lookupMode=="recipes" ? GET_RECIPE_BY_ITEM_ID : GET_USAGE_BY_ITEM_ID, {variables: {itemId: selectedItem?.id ?? ''}}
+    )
 
     function selectRecipe(leftClick: boolean, item: Item) {
         setSelectedItem(item)
+        setLookupMode(leftClick ? "recipes" : "usage")
     }
 
     return (
         <Stack>
             <Grid>
                 <Grid.Col span={7}>
-                    <RecipeDisplay
-                        recipe={recipeData?.items?.at(0)?.recipes?.at(0)}
-                        onClick={(leftClick, item) => selectRecipe(leftClick, item)}
-                    />
+                    <ItemRecipes items={recipeData?.items} lookupMode={lookupMode} loading={loading} onClick={selectRecipe}/>
                 </Grid.Col>
                 <Grid.Col span={5}>
                     <div style={{backgroundColor: "#efefef", padding: '10px'}}>
@@ -116,8 +131,7 @@ function App() {
                                 direction="row"
                                 wrap="wrap"
                             >{data && data.items.map((item: Item) => (
-                                <ItemStackDisplay key={item.id} item={itemToItemStackFull(item)}
-                                                  onClick={(leftClick) => selectRecipe(leftClick, item)}/>
+                                <ItemStackDisplay key={item.id} item={item} onClick={selectRecipe}/>
                             ))}
                             </Flex>
                         </ScrollArea>
