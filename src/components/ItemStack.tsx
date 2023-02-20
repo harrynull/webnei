@@ -103,6 +103,7 @@ const ItemStackDisplay = ({item: inputItem, onClick}: ItemStackDisplayProps) => 
                     })}
                     onClick={() => onClick && onClick(true, item.item)}
                     onContextMenu={(e) => {onClick && onClick(false, item.item); e.preventDefault(); e.stopPropagation(); return false} }
+                    style={{position: 'relative'}}
                 >
                     <img
                         src={IMAGE_BASE_URL + item.item.imageFilePath}

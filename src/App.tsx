@@ -1,11 +1,11 @@
 import {useState} from 'react'
 import './App.css'
-import {Center, Flex, Grid, ScrollArea, Stack, TextInput} from "@mantine/core";
+import {Center, Flex, Grid, ScrollArea, Stack, TextInput, Text} from "@mantine/core";
 import {gql} from "./__generated__";
 import {useQuery} from "@apollo/client";
 import ItemStackDisplay from "./components/ItemStack";
 import {Item} from "./__generated__/graphql";
-import {useDebouncedState, useElementSize} from "@mantine/hooks";
+import {useDebouncedState} from "@mantine/hooks";
 import {ItemRecipes} from "./components/ItemRecipes";
 import {GRAPHQL_URL} from "./config";
 
@@ -100,9 +100,10 @@ const GET_USAGE_BY_ITEM_ID = gql(/* GraphQL */`
 
 function App() {
     const [query, setQuery] = useDebouncedState("", 500);
+    const limit = 64;
     const {data} = useQuery(
         GET_ITEMS,
-        {variables: {query: `%${query}%`, limit: 500}}
+        {variables: {query: `%${query}%`, limit: limit}}
     );
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [lookupMode, setLookupMode] = useState<"recipes" | "usage">("recipes");
@@ -135,6 +136,7 @@ function App() {
                                 <ItemStackDisplay key={item.id} item={item} onClick={selectRecipe}/>
                             ))}
                             </Flex>
+                            {data && data.items.length == limit && (<Text>Search limit of {limit} items reached</Text>)}
                         </ScrollArea>
                         <TextInput
                             placeholder="Search for items..."
