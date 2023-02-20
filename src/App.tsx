@@ -7,6 +7,7 @@ import ItemStackDisplay from "./components/ItemStack";
 import {Item} from "./__generated__/graphql";
 import {useDebouncedState, useElementSize} from "@mantine/hooks";
 import {ItemRecipes} from "./components/ItemRecipes";
+import {GRAPHQL_URL} from "./config";
 
 const BASIC_ITEM_INFO = gql(/* GraphQL */`
     fragment BasicItemInfo on Item {
@@ -150,7 +151,7 @@ function App() {
             </Grid>
             <Center style={{flexDirection: 'column'}}>
                 <div>
-                    Data exported from&nbsp;<a href="">GTNH 2.2.8</a>&nbsp;with&nbsp;<a href="https://github.com/D-Cysteine/nesql-exporter">nesql-exporter</a> | <a href="https://github.com/harrynull/NEIGraphQL">Backend source code</a> | <a href="#">GraphQL endpoint</a> | <a href="https://github.com/harrynull/WebNEI">frontend source code</a>
+                    Data exported from&nbsp;<a href="https://github.com/GTNewHorizons/GT-New-Horizons-Modpack">GTNH 2.2.8</a>&nbsp;with&nbsp;<a href="https://github.com/D-Cysteine/nesql-exporter">nesql-exporter</a> | <a href="https://github.com/harrynull/NEIGraphQL">Backend source code</a> | <a href={GRAPHQL_URL}>GraphQL endpoint</a> | <a href="https://github.com/harrynull/WebNEI">frontend source code</a>
                 </div>
                 <div>
                     <a href="https://harrynull.tech">made by harrynull</a>
